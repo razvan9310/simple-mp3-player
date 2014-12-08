@@ -32,6 +32,16 @@ private slots:
   void on_slider_actionTriggered(int action);
 
 private:
+  class ScrollWheelFilter : public QObject {
+  public:
+    ScrollWheelFilter(QSlider *);
+    ~ScrollWheelFilter();
+    bool eventFilter(QObject *, QEvent *);
+
+  private:
+    QSlider *slider;
+  };
+
   QString simple_file_name(const QString &);
   QString time_string_from_millis(const qint64 &);
 

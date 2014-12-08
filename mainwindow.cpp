@@ -1,6 +1,21 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+MainWindow::ScrollWheelFilter::ScrollWheelFilter(QSlider *slider) : QObject() {
+  this->slider = slider;
+}
+
+MainWindow::ScrollWheelFilter::~ScrollWheelFilter() {}
+
+bool MainWindow::ScrollWheelFilter::eventFilter(QObject *obj, QEvent *event) {
+  if (obj == slider) {
+    if (event->type() == QEvent::Wheel) {
+      return true;
+    }
+  }
+  return QObject::eventFilter(obj, event);
+}
+
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow) {
@@ -15,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   slider = findChild<QSlider *>("slider");
   slider->setRange(0, 0);
+  slider->installEventFilter(new ScrollWheelFilter(slider));
   title = findChild<QLabel *>("title");
   current_time = findChild<QLabel *>("current_time");
   duration = findChild<QLabel *>("duration");
@@ -137,6 +153,12 @@ void MainWindow::on_slider_actionTriggered(int action) {
       break;
     case QAbstractSlider::SliderPageStepSub:
       player->setPosition(player->position() - slider->pageStep() * 1000);
+      break;
+    case QAbstractSlider::SliderSingleStepAdd:
+      player->setPosition(player->position() + slider->singleStep() * 1000);
+      break;
+    case QAbstractSlider::SliderSingleStepSub:
+      player->setPosition(player->position() - slider->singleStep() * 1000);
       break;
     default:
       return;
